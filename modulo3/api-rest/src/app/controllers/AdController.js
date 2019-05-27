@@ -2,7 +2,34 @@ const Ad = require('../models/Ad')
 
 class AdController {
   async findall (req, res) {
-    const ads = await Ad.find()
+    const filters = {}
+
+    if (req.query.price_min || req.query.price_max) {
+      filters.price = {}
+
+      if (req.query.price_min) {
+        filters.price.$gte = req.query.price_min
+      }
+
+      if (req.query.price_max) {
+        filters.price.$lte = req.query.price_max
+      }
+    }
+    if (req.query.title) {
+      filters.title = new RegExp(req.query.title, 'i')
+    }
+
+    // if (req.query.author) {
+    //   filters.author.name = new RegExp(req.query.author, 'i')
+    // }
+
+    console.log(filters)
+    const ads = await Ad.paginate(filters, {
+      page: req.query.page || 1,
+      limit: 20,
+      sort: '-createdAt',
+      populate: ['author']
+    })
     return res.json(ads)
   }
 
@@ -19,7 +46,8 @@ class AdController {
   }
 
   async update (req, res) {
-    const ad = await Ad.findByIdAndUpdate(req.params.id, req.params.body, {
+    console.log(req.body)
+    const ad = await Ad.findByIdAndUpdate(req.params.id, req.body, {
       new: true
     })
 
