@@ -4,7 +4,7 @@ const User = use("App/Models/user");
 const hash = use("Hash");
 
 class UserController {
-  async store ({ request }) {
+  async store({ request }) {
     const data = request.only(["username", "email", "password"]);
 
     const user = User.create(data);
@@ -13,18 +13,18 @@ class UserController {
   }
 
   async update({ request, response, auth: { user } }) {
-    const data = request.only(["password_old", "password"]);
+    const data = request.only(["password_old", "password", "username"]);
 
     if (data.password_old) {
-      console.log(user.password)
-      console.log(data.password_old)
+      console.log(user.password);
+      console.log(data.password_old);
 
       const isPassWord = await hash.verify(data.password_old, user.password);
-      console.log(isPassWord)
+      console.log(isPassWord);
       if (!isPassWord) {
         return response.status(401).send({
           error: {
-            erro: 'Dados não conferem!!!'
+            erro: "Dados não conferem!!!"
           }
         });
       }
@@ -39,17 +39,28 @@ class UserController {
 
       delete data.password_old;
 
+      console.log(data);
+
       user.merge(data);
 
       await user.save();
 
       return user;
     } else {
-      return response.status(401).send({
-        error: {
-          erro: "Favor informar a sua senha antiga!!!"
-        }
-      });
+      if (data.username) {
+        console.log(user);
+        user.merge(data);
+
+        await user.save();
+
+        return user;
+      } else {
+        return response.status(500).send({
+          error: {
+            erro: "Favor informar a sua senha antiga!!!"
+          }
+        });
+      }
     }
   }
 }

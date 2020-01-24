@@ -23,7 +23,7 @@ Route.get("/", () => {
 //User
 Route.post("users", "UserController.store").validator("user");
 Route.put("users", "UserController.update")
-  .validator("userUpdatePassword")
+  // .validator("userUpdatePassword")
   .middleware("auth");
 
 //session
