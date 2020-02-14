@@ -21,16 +21,21 @@ class MeetAppController {
   }
 
   async store({ request, response, auth }) {
-    const meetApp = request.only(["nome", "local", "descricao", "data"]);
-
+    let meetApp = request.only(["nome", "local", "descricao"]);
+    const data = request.only(["dataMeet"]);
     try {
       //String is already in utc time, but still need to put it into utc mode
       var active_time = moment.utc(
-        meetApp.data,
-        // "2019-08-25T23:00Z",
-        "YYYY-MM-DD[T]HH:mm[Z]"
+        data.dataMeet,
+        // "2019-08-25T23:00Z"
+        "YYYY-MM-DD[T]HH:mm:ss[Z]"
+        // "YYYY-MM-DDHH:mm"
       );
 
+      meetApp.data = moment(data.dataMeet, "YYYY-MM-DD[T]HH:mm:ss[Z]").format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
+      console.log(meetApp);
       //Convert current time to moment object with utc time
       var current_time = moment();
       console.log("active_time =", active_time.format());
@@ -42,7 +47,7 @@ class MeetAppController {
         const evento = MeetApp.create({ ...meetApp, user_id: auth.user.id });
         return evento;
       } else {
-        return response.status(401).send({
+        return response.status(500).send({
           error: {
             message: "Não é possivel cadastrar evento em data passada"
           }

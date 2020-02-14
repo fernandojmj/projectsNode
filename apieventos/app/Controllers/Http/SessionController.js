@@ -19,9 +19,9 @@ class SessionController {
       user = users.toJSON()[0];
       console.log(user);
       user.password = "";
-      returnToken = token.toJSON();
+      // returnToken = token.toJSON();
     }
-    return { returnToken, user };
+    return { token, user };
     // } catch (err) {
     return response.status(err.status).send({
       error: {
