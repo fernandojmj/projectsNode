@@ -5,7 +5,6 @@ const exphbs = require('express-handlebars')
 const mailConfig = require('../../config/mail')
 
 const transport = nodemailer.createTransport(mailConfig)
-console.log('Obtendo template')
 const viewPath = path.resolve(__dirname, '..', 'views', 'emails')
 
 console.log(viewPath)

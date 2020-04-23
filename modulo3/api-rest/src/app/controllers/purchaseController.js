@@ -1,6 +1,6 @@
 const Ad = require('../models/Ad')
 const User = require('../models/User')
-const mail = require('.././services/Mail')
+const Purchase = require('../models/Purchase')
 const PurchaseMail = require('../jobs/PurchaseMail')
 const Queue = require('../services/Queue')
 
@@ -10,17 +10,27 @@ class PurchaseController {
     console.log(ad)
     console.log(content)
     const purchaseAd = await Ad.findById(ad).populate('author')
-    const user = await User.findById(req.userId)
 
-    console.log(purchaseAd)
+    if (purchaseAd.purchase === null) {
+      const user = await User.findById(req.userId)
 
-    Queue.create(PurchaseMail.key, {
-      ad: purchaseAd,
-      user,
-      content
-    }).save()
+      console.log(purchaseAd)
 
-    return res.send()
+      Queue.create(PurchaseMail.key, {
+        ad: purchaseAd,
+        user,
+        content
+      }).save()
+
+      const pucharse = await Purchase.create({ ...req.body, Ad: req.body.ad })
+
+      console.log('puchase salva')
+      console.log(pucharse)
+
+      return res.send()
+    } else {
+      return res.status(401).json({ error: 'Anuncio já foi vendido' })
+    }
   }
 }
 

@@ -19,16 +19,14 @@ class AdController {
       filters.title = new RegExp(req.query.title, 'i')
     }
 
-    // if (req.query.author) {
-    //   filters.author.name = new RegExp(req.query.author, 'i')
-    // }
+    // filters.purchase = null
 
     console.log(filters)
     const ads = await Ad.paginate(filters, {
       page: req.query.page || 1,
       limit: 20,
       sort: '-createdAt',
-      populate: ['author']
+      populate: ['author', 'purchase']
     })
     return res.json(ads)
   }
@@ -59,6 +57,14 @@ class AdController {
 
     return res.send()
   }
-}
 
+  async vendor (req, res) {
+    const purchaseId = req.query.purchaseId
+    req.body.purchase = purchaseId
+    const ad = await Ad.findByIdAndUpdate(req.params.id, req.body, {
+      new: true
+    })
+    res.json(ad)
+  }
+}
 module.exports = new AdController()
